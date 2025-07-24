@@ -35,12 +35,6 @@ def submit_repo(repo: Repo):
     repository = Repository(repo.link)
     repository.download()
 
-    llm_response = []
-    for file in repository.files:
-        filename = file.name
-        code = file.content
-
-        response = llm.generate(model=model, prompt=get_source_code_analysis_prompt(filename, code))
-        llm_response.append(response)
-
-    return {"llm response": llm_response}
+    # llm_response = []
+    # response = llm.generate(model=model, prompt=get_hard_coded_prompt_test())
+    return {"llm_response": "test"}

@@ -1,4 +1,6 @@
 import requests
+import zipfile
+import io
 
 from .file import File
 
@@ -19,7 +21,7 @@ class Repository:
         self.owner = parts[-2]
         self.repo = parts[-1]
 
-        self.url = f"https://api.github.com/repos/{self.owner}/{self.repo}"
+        self.url = f"https://github.com/{self.owner}/{self.repo}/archive/main.zip"
         
         self.files: list[File] = []
 
@@ -28,19 +30,12 @@ class Repository:
     Downloads the content and other information of a single repository.
     """
     def download(self):
-        url = f"{self.url}/git/trees/main?recursive=1"
-        response = requests.get(url)
-        response.raise_for_status()
+        response = requests.get(self.url)
+        z = zipfile.ZipFile(io.BytesIO(response.content))
+        
+        for filename in z.namelist():
+            with z.open(filename) as f:
+                info = z.getinfo(filename)
 
-        for f in response.json()["tree"]:
-            if f["type"] == "blob":
-                file = File(path=f["path"], type=f["type"], size=f["size"], url=f["url"])
-                
-                sha = f.sha
-                blob_url = f"{self.url}/git/blobs{sha}"
-                response = requests.get(blob_url, headers={"Accept": "application/vnd.github.v3.raw"})
-                response.raise_for_status()
-
-                file.content = response.content
-
-                self.files.append(file)
+                content = f.read().decode("utf-8")
+                self.files.append(File(path=filename, size=info.file_size, content=content))
