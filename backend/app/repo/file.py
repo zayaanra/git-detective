@@ -21,4 +21,5 @@ class File:
         
         self.size = size
 
-        self.content = None
+        self.content = content
+        self.summary = None

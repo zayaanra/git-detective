@@ -19,9 +19,9 @@ class Repository:
         parts = link.split("/")
 
         self.owner = parts[-2]
-        self.repo = parts[-1]
+        self.name = parts[-1]
 
-        self.url = f"https://github.com/{self.owner}/{self.repo}/archive/main.zip"
+        self.url = f"https://github.com/{self.owner}/{self.name}/archive/main.zip"
         
         self.files: list[File] = []
 
