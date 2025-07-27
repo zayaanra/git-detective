@@ -1,14 +1,16 @@
-import yaml
 import os
+import uuid
 
 from repo.repo import Repository
 from llm.llm_factory import LLMFactory
 from llm.prompts import *
 from embedding.embedding_factory import EmbeddingFactory
+from util.splitter import *
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from qdrant_client.models import PointStruct
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -43,11 +45,17 @@ def submit_repo(repo: Repo):
     repository.download()
 
     EmbeddingFactory.create_collection(llm, qdrant_client, MODEL, repository.name)
+    
+    points = []
+    for file in repository.files:
+        # BUG: This needs to be fixed. It's too slow.
+        file.summary = llm.generate(model=MODEL, prompt=get_source_code_analysis_prompt(file.content)).response
 
-    # for file in repository.files:
-        # file.summary = llm.generate(model=MODEL, prompt=get_source_code_analysis_prompt(file.content)).response
-        # with open(f"llm_summaries/{file.name}_summary.txt", "w", encoding="utf-8") as f:
-        #     f.write(file.summary)
+        chunks = split_texts(file.summary)
+        for chunk in chunks:
+            point = EmbeddingFactory.create_embedding(llm=llm, model=MODEL, chunk=chunk, repo_name=repository.name, filename=file.name)
+            points.append(point)
         
+    EmbeddingFactory.save_embedding(client=qdrant_client, repo_name=repository.name, points=points)
 
     return {"llm_response": "test"}
