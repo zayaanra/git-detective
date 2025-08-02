@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 
 from repo.repo import Repository
 from llm.llm_factory import LLMFactory
@@ -114,20 +115,9 @@ def ask_question(q: Question):
     context_chunks = [hit.payload["text"] for hit in search_result]
     context_text = "\n\n".join(context_chunks)
 
-    prompt = f"""You are an expert codebase assistant.
-    Based on the following retrieved text snippets, answer the user's question in detail.
-
-    Retrieved Code Snippets:
-    {context_text}
-
-    User Question:
-    {question}
-
-    Answer:""" 
-
-    answer = llm.generate(model=MODEL, prompt=prompt).response
-
+    response = llm.generate(model=MODEL, prompt=get_question_answer_prompt(context_text, question)).response
+    result = json.loads(response, strict=False)
     return {
-        "answer": answer,
-        "references": context_chunks
+        "answer": result["answer"],
+        "flowchart": result["flowchart"]
     }
