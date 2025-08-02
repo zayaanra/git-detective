@@ -5,6 +5,8 @@ import uuid
 from qdrant_client import QdrantClient   
 from qdrant_client.models import VectorParams, Distance, PointStruct
 
+logger = logging.getLogger(__name__)
+
 class EmbeddingFactory:
     """
     A static class that provides an interface for interacting with vector embeddings within Ollama and Qdrant.
@@ -25,9 +27,9 @@ class EmbeddingFactory:
         client = None
         try:
             client = QdrantClient(api_key=api_key, url=qdrant_url)
-            logging.info("Initialized Qdrant client")
+            logger.info("Initialized Qdrant client")
         except Exception as e:
-            logging.exception(f"Error when connecting to Qdrant: {e}")
+            logger.exception(f"Error when connecting to Qdrant: {e}")
         return client
     
     """
@@ -40,9 +42,9 @@ class EmbeddingFactory:
     def disconnect_client(client: QdrantClient):
         try:
             client.close()
-            logging.info("Disconnected from Qdrant")
+            logger.info("Disconnected from Qdrant")
         except Exception as e:
-            logging.exception(f"Error when disconnecting from Qdrant: {e}")
+            logger.exception(f"Error when disconnecting from Qdrant: {e}")
 
     """
     Creates a vector embedding of the given text chunk
@@ -68,10 +70,10 @@ class EmbeddingFactory:
                     "text": chunk
                 }
             )
-            logging.info("Created embedding")
+            logger.info("Created embedding")
             return point
         except Exception as e:
-            logging.exception(f"Error when creating embedding: {e}")
+            logger.exception(f"Error when creating embedding: {e}")
 
     """
     Saves the embedding to the given collection
@@ -85,9 +87,9 @@ class EmbeddingFactory:
     def save_embedding(client: QdrantClient, repo_name: str, points: list[PointStruct]):
         try:
             client.upsert(collection_name=repo_name, points=points)
-            logging.info("Saved embedding")
+            logger.info("Saved embedding")
         except Exception as e:
-            logging.exception(f"Error when saving embedding: {e}")
+            logger.exception(f"Error when saving embedding: {e}")
             
     """
     Creates a collection in the Qdrant vector DB
@@ -97,9 +99,12 @@ class EmbeddingFactory:
         client (QdrantClient): The Qdrant client
         model (str): The model used for both the LLM and embedding
         collection_name (str): The name of the collection to be created
+
+    Returns:
+        bool: Whether or not a collection under the given collection name already exists
     """
     @staticmethod
-    def create_collection(llm: ollama.Client, client: QdrantClient, model: str, collection_name: str):
+    def create_collection(llm: ollama.Client, client: QdrantClient, model: str, collection_name: str) -> bool:
         sample = ''' \
         This Python script defines a serverless workflow for generating code completions using a SageMaker model and tracking usage through AWS services. It is designed to run as an AWS Lambda function, receiving code snippets as input and returning generated code suggestions.
         The core component is the CodeAssistant class, which initializes a connection to a SageMaker endpoint using the AWS SDK (boto3). The complete_code method sends a code snippet along with generation parameters such as max_tokens and temperature to the endpoint. It then parses the JSON response and extracts the generated code. 
@@ -110,6 +115,9 @@ class EmbeddingFactory:
         response = llm.embeddings(model=model, prompt=sample)
         vector_size = len(response['embedding'])
 
+        if client.collection_exists(collection_name):
+            return True
+        
         try:
             client.recreate_collection(
                 collection_name=collection_name,
@@ -118,9 +126,11 @@ class EmbeddingFactory:
                     distance=Distance.COSINE
                 )
             )
-            logging.info(f"Created collection: {collection_name}")
+            logger.info(f"Created collection: {collection_name}")
         except Exception as e:
-            logging.exception(f"Error when creating collection: {e}")
+            logger.exception(f"Error when creating collection: {e}")
+
+        return False
     
     """
     Deletes a collection in the Qdrant vector DB
@@ -133,9 +143,9 @@ class EmbeddingFactory:
     def delete_collection(client: QdrantClient, collection_name: str):
         try:
             client.delete_collection(collection_name=collection_name)
-            logging.info(f"Deleted collection: {collection_name}")
+            logger.info(f"Deleted collection: {collection_name}")
         except Exception as e:
-            logging.exception(f"Error when deleting collection: {e}")
+            logger.exception(f"Error when deleting collection: {e}")
 
     """
     Fetches a collection from the Qdrant vector DB
@@ -151,14 +161,37 @@ class EmbeddingFactory:
     def get_collection(client: QdrantClient, collection_name: str):
         try:
             client.get_collection(collection_name=collection_name)
-            logging.info(f"Fetched collection: {collection_name}")
+            logger.info(f"Fetched collection: {collection_name}")
         except Exception as e:
-            logging.exception(f"Error when fetching collection: {e}")
+            logger.exception(f"Error when fetching collection: {e}")
     
+    """
+    Calculates a vector from the user question and searches through the Qdrant vector DB for the closest match under the given collection name
+
+    Args:
+        llm (ollama.Client): The LLM
+        client (QdrantClient): The QdrantClient
+        model (str): The model of the LLM
+        collection_name (str): The name of the collection to be searched
+        question (str): The question the user asks about the repository (collection name)
+    
+    Returns:
+        list: Returns a list of all the hits found from the vector DB search
+    """
     @staticmethod
-    def search_collection():
-        # TODO
-        pass
+    def search_collection(llm: ollama.Client, client: QdrantClient, model: str, collection_name: str, question: str) -> list:
+        try:
+            response = llm.embeddings(model=model, prompt=question)
+            vector = response['embedding']
 
+            search_result = client.search(
+                collection_name=collection_name,
+                query_vector=vector,
+                limit=10,
+                with_payload=True
+            )
+            logger.info(f"Searched through collection: {collection_name}")
 
-    
+            return search_result
+        except Exception as e:
+            logger.exception(f"Error when searching collection: {e}")
