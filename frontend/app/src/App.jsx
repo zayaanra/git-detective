@@ -1,35 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { Header } from './components/Header/Header';
+import { RepoInput } from './components/RepoInput/RepoInput';
+import { QuestionInput } from './components/QuestionInput/QuestionInput';
+import { ResponseDisplay } from './components/ResponseDisplay/ResponseDisplay';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [repository, setRepository] = useState('');
+  const [isRepoConnected, setIsRepoConnected] = useState(false);
+  const [question, setQuestion] = useState('');
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRepoSubmit = (repo) => {
+    setIsLoading(true);
+    // Simulate connecting to a repository
+    setTimeout(() => {
+      setRepository(repo);
+      setIsRepoConnected(true);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleQuestionSubmit = (q) => {
+    setQuestion(q);
+    setIsLoading(true);
+    // Simulate LLM response
+    setTimeout(() => {
+      setResponse(
+        `Here's information about ${repository} regarding "${q}". This is a simulated response that would come from an LLM analyzing the repository code.`
+      );
+      setIsLoading(false);
+    }, 2000);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app-container">
+      <Header />
+      <main className="app-main">
+        <RepoInput onSubmit={handleRepoSubmit} isLoading={isLoading} />
+        {isRepoConnected && (
+          <>
+            <div className="connected-info">
+              Connected to:{' '}
+              <span className="connected-repo">{repository}</span>
+            </div>
+            <QuestionInput
+              onSubmit={handleQuestionSubmit}
+              isLoading={isLoading}
+              disabled={!isRepoConnected}
+            />
+          </>
+        )}
+        {response && (
+          <ResponseDisplay question={question} response={response} />
+        )}
+      </main>
+    </div>
+  );
 }
-
-export default App
