@@ -28,3 +28,14 @@ def get_question_answer_prompt(context_text: str, question: str) -> str:
     }}
     """ 
     return prompt
+
+def get_repo_analysis_prompt(context: str) -> str:
+    prompt = \
+    f"""You are an expert codebase assistant.
+
+    Based on the following retrieved GitHub repository information, provide an in-depth analysis of what you think the intention of the GitHub repository is. Your response should be professional, clean, and correct.
+
+    GitHub Repository Information:
+    {context}
+    """
+    return prompt

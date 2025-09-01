@@ -7,3 +7,5 @@
 - [ ] Ollama is designed only for local use, so it should be hosted somewhere on the cloud (e.g: AWS EC2 instance)
 - [ ] Ollama is currently too slow. Sending a request for every file is taking too long, how can we speed this up?
 - [ ] Make API calls from frontend to backend
+- [X] Download repository and condense into one single XML format
+  - [X] Tags like <directory_structure>, <files> <file path="path"> // file contents here </file> </files>, should be considered

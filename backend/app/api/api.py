@@ -47,7 +47,7 @@ QDRANT_CLUSTER_ENDPOINT=os.environ['QDRANT_CLUSTER_ENDPOINT']
 QDRANT_CLUSTER_API_KEY=os.environ['QDRANT_CLUSTER_API_KEY']
 
 llm = LLMFactory.get_ollama_client()
-qdrant_client = EmbeddingFactory.connect_client(QDRANT_CLUSTER_API_KEY, QDRANT_CLUSTER_ENDPOINT)
+# qdrant_client = EmbeddingFactory.connect_client(QDRANT_CLUSTER_API_KEY, QDRANT_CLUSTER_ENDPOINT)
 
 origins = ["*"]
 app = FastAPI()
@@ -67,57 +67,9 @@ async def read_root() -> dict:
 def submit_repo(repo: Repo):
     repository = Repository(repo.link)
     repository.download()
+    repository.convert_to_xml()
+    
+    #prompt = get_repo_analysis_prompt(repository.context)
+    # response = llm.generate(model=MODEL, prompt=prompt).response
 
-    exists = EmbeddingFactory.create_collection(llm, qdrant_client, MODEL, repository.name)
-    if not exists:
-        def summarize_file(file):
-            if file.name:
-                truncated_content = file.content[:FILE_CONTENT_LIMIT]
-                prompt = get_source_code_analysis_prompt(truncated_content)
-                file.summary = llm.generate(model=MODEL, prompt=prompt).response
-                return file
-
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            results = executor.map(summarize_file, repository.files)
-            summarized_files = [res for res in results if res]
-        
-        points = []
-        for file in summarized_files:
-            chunks = split_texts(file.summary)
-            for chunk in chunks:
-                point = EmbeddingFactory.create_embedding(
-                    llm=llm,
-                    model=MODEL,
-                    chunk=chunk,
-                    repo_name=repository.name,
-                    filename=file.name
-                )
-                points.append(point)
-        
-        EmbeddingFactory.save_embedding(
-            client=qdrant_client,
-            repo_name=repository.name,
-            points=points
-        )
-
-        return {"status": "completed"}
-
-    return {"status": "collection %s already exists" % repository.name}
-
-@app.post("/ask")
-def ask_question(q: Question):
-    question = q.question
-
-    repo_name = "omnicode"
-
-    search_result = EmbeddingFactory.search_collection(llm=llm, client=qdrant_client, model=MODEL, collection_name=repo_name, question=question)
-
-    context_chunks = [hit.payload["text"] for hit in search_result]
-    context_text = "\n\n".join(context_chunks)
-
-    response = llm.generate(model=MODEL, prompt=get_question_answer_prompt(context_text, question)).response
-    result = json.loads(response, strict=False)
-    return {
-        "answer": result["answer"],
-        "flowchart": result["flowchart"]
-    }
+    return {"response": ""}
