@@ -1,11 +1,6 @@
 ### Todo
-- [X] Design a Qdrant vector database in accordance with Ollama custom model
-  - [X] Use LLM to summarize each file, then chunk and embed each summary in Qdrant vector DB
-      - [X] Think of better way to chunk each file - maybe each summary is one chunk only
-- [X] Design a minimal frontend to make testing easier
-- [X] Figure out a way for LLM to output flowchart diagram in Mermaid form
-- [ ] Ollama is designed only for local use, so it should be hosted somewhere on the cloud (e.g: AWS EC2 instance)
-- [ ] Ollama is currently too slow. Sending a request for every file is taking too long, how can we speed this up?
-- [ ] Make API calls from frontend to backend
 - [X] Download repository and condense into one single XML format
   - [X] Tags like <directory_structure>, <files> <file path="path"> // file contents here </file> </files>, should be considered
+- [ ] Implement a simple session storage via DB
+- [ ] Test Gemini API against real repositories
+- [ ] Improve frontend visuals when user is connected to repository
