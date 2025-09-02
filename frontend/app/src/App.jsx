@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+
 import React, { useState } from 'react';
 import { Header } from './components/Header/Header';
 import { RepoInput } from './components/RepoInput/RepoInput';
@@ -5,32 +7,52 @@ import { QuestionInput } from './components/QuestionInput/QuestionInput';
 import { ResponseDisplay } from './components/ResponseDisplay/ResponseDisplay';
 import './App.css';
 
+
 export default function App() {
   const [repository, setRepository] = useState('');
   const [isRepoConnected, setIsRepoConnected] = useState(false);
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isRepoLoading, setIsRepoLoading] = useState(false);
+  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
 
-  const handleRepoSubmit = (repo) => {
-    setIsLoading(true);
-    // Simulate connecting to a repository
-    setTimeout(() => {
-      setRepository(repo);
-      setIsRepoConnected(true);
-      setIsLoading(false);
-    }, 1500);
+  const handleRepoSubmit = async (repo) => {
+    setIsRepoLoading(true);
+
+    const response = await fetch("http://localhost:8000/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": Cookies.get("csrftoken") || "",
+      },
+      body: JSON.stringify({ 
+        link: repo 
+      }),
+    });
+
+    response.json().then((data) => {
+      setIsRepoLoading(false);
+      if (response.status === 400) {
+        // TODO: Repo not found - pop up component
+        setRepository('');
+        setIsRepoConnected(false);
+      } else if (response.status === 200) {
+        setRepository(repo);
+        setIsRepoConnected(true);
+      }
+    });
   };
 
   const handleQuestionSubmit = (q) => {
+    setIsQuestionLoading(true);
     setQuestion(q);
-    setIsLoading(true);
+    
     // Simulate LLM response
     setTimeout(() => {
       setResponse(
         `Here's information about ${repository} regarding "${q}". This is a simulated response that would come from an LLM analyzing the repository code.`
       );
-      setIsLoading(false);
+      setIsQuestionLoading(false);
     }, 2000);
   };
 
@@ -38,7 +60,7 @@ export default function App() {
     <div className="app-container">
       <Header />
       <main className="app-main">
-        <RepoInput onSubmit={handleRepoSubmit} isLoading={isLoading} />
+        <RepoInput onSubmit={handleRepoSubmit} isRepoLoading={isRepoLoading} />
         {isRepoConnected && (
           <>
             <div className="connected-info">
@@ -47,7 +69,7 @@ export default function App() {
             </div>
             <QuestionInput
               onSubmit={handleQuestionSubmit}
-              isLoading={isLoading}
+              isQuestionLoading={isQuestionLoading}
               disabled={!isRepoConnected}
             />
           </>

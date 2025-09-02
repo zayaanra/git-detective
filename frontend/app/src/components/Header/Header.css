@@ -1,13 +1,17 @@
 .header {
-  background-color: #1e293b; /* slate-800 */
+  position: relative;
+  width: 100vw;
+  left: 0;
+  right: 0;
+  background-color: #1e293b;
   color: white;
   padding: 1rem 0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
-  max-width: 64rem; /* ~1024px (max-w-4xl) */
-  margin: 0 auto;
+  margin: 0;
+  max-width: none;
   padding: 0 1rem;
   display: flex;
   align-items: center;

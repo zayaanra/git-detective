@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SendIcon, LoaderIcon } from 'lucide-react';
 import './QuestionInput.css';
 
-export function QuestionInput({ onSubmit, isLoading, disabled }) {
+export function QuestionInput({ onSubmit, isQuestionLoading, disabled }) {
   const [question, setQuestion] = useState('');
 
   const handleSubmit = (e) => {
@@ -25,15 +25,15 @@ export function QuestionInput({ onSubmit, isLoading, disabled }) {
           placeholder="Example: Explain the architecture of this project, or How does the authentication system work?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          disabled={disabled || isLoading}
+          disabled={disabled || isQuestionLoading}
           required
         />
         <button
           type="submit"
-          disabled={disabled || isLoading}
+          disabled={disabled || isQuestionLoading}
           className="question-button"
         >
-          {isLoading ? (
+          {isQuestionLoading ? (
             <>
               <LoaderIcon className="icon spin" />
               Analyzing...
