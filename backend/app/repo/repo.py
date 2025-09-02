@@ -1,8 +1,6 @@
 import requests
 import zipfile
 import io
-import json
-import os
 
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -29,6 +27,8 @@ class Repository:
     def __init__(self, link: str):
         parts = link.split("/")
 
+        # TODO - use regex to determine if repo link is valid
+
         self.owner, self.name = parts[-2], parts[-1]
         self.url = f"https://github.com/{self.owner}/{self.name}/archive/main.zip"
         self.files: list[File] = []
@@ -36,8 +36,11 @@ class Repository:
     """
     Downloads the content and other information of a single repository.
     """
-    def download(self):
+    def download(self) -> bool:
         response = requests.get(self.url)
+        if response.status_code == 404:
+            return False
+            
         z = zipfile.ZipFile(io.BytesIO(response.content))
 
         for filename in z.namelist():
@@ -52,6 +55,8 @@ class Repository:
                         info = z.getinfo(filename)
                         content = f.read().decode()
                         self.files.append(File(path=filename, size=info.file_size, content=content))
+
+        return True
 
     """
     Converts the information of the repository to a single XML file format

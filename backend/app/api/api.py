@@ -1,17 +1,13 @@
-import os
 import logging
-import json
 
 from repo.repo import Repository
-from llm.llm_factory import LLMFactory
+from llm.llm_factory import GenAI
 from llm.prompts import *
-from embedding.embedding_factory import EmbeddingFactory
-from util.splitter import *
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -40,24 +36,16 @@ class Repo(BaseModel):
 class Question(BaseModel):
     question: str
 
-FILE_CONTENT_LIMIT = 8000
-
-MODEL=os.environ['MODEL']
-QDRANT_CLUSTER_ENDPOINT=os.environ['QDRANT_CLUSTER_ENDPOINT']
-QDRANT_CLUSTER_API_KEY=os.environ['QDRANT_CLUSTER_API_KEY']
-
-llm = LLMFactory.get_ollama_client()
-# qdrant_client = EmbeddingFactory.connect_client(QDRANT_CLUSTER_API_KEY, QDRANT_CLUSTER_ENDPOINT)
-
-origins = ["*"]
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+llm = GenAI()
 
 @app.get("/")
 async def read_root() -> dict:
@@ -66,10 +54,18 @@ async def read_root() -> dict:
 @app.post("/submit")
 def submit_repo(repo: Repo):
     repository = Repository(repo.link)
-    repository.download()
+    success = repository.download()
     repository.convert_to_xml()
-    
-    #prompt = get_repo_analysis_prompt(repository.context)
-    # response = llm.generate(model=MODEL, prompt=prompt).response
 
-    return {"response": ""}
+    if success:
+        return JSONResponse(content={"message": f"Connected to repository: {repository.name}"}, status_code=200)
+
+    else:
+        return JSONResponse(content={"message": f"Failed to find repository: {repository.name}. Please try again."}, status_code=400)
+    
+@app.post("/ask")
+def ask(q: Question):
+    question = Question(q.question)
+    llm.ask(question, context="")
+
+    # TODO - maintain session somehow so we know which repo is being asked about
