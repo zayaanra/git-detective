@@ -9,8 +9,8 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
 class GenAI():
     def __init__(self, model: str = "gemini-2.5-flash"):
-        self.llm = genai.GenerativeModel(model)
-
+        self.model = model
+        
         self.client = genai.Client(api_key=GEMINI_API_KEY)
     
     def ask(self, question: str, context: str) -> str:
