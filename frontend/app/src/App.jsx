@@ -19,6 +19,8 @@ export default function App() {
   const handleRepoSubmit = async (repo) => {
     setIsRepoLoading(true);
 
+    let link = repo.split("/")
+
     const response = await fetch("http://localhost:8000/submit", {
       method: "POST",
       headers: {
@@ -26,7 +28,8 @@ export default function App() {
         "X-CSRFToken": Cookies.get("csrftoken") || "",
       },
       body: JSON.stringify({ 
-        link: repo 
+        owner: link[0],
+        name:  link[1],
       }),
     });
 

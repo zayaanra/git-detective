@@ -26,7 +26,7 @@ export function RepoInput({ onSubmit, isLoading }) {
           <input
             type="text"
             className="repo-input"
-            placeholder="github.com/username/repository"
+            placeholder="username/repository"
             value={repoUrl}
             onChange={(e) => setRepoUrl(e.target.value)}
             disabled={isLoading}
