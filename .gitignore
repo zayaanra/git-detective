@@ -8,4 +8,5 @@ node_modules
 
 llm_summaries
 
+repo_json_test.json
 repo_xml_test.xml
