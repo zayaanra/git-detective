@@ -1,10 +1,12 @@
 import Cookies from "js-cookie";
 
 import React, { useState } from 'react';
-import { Header } from './components/Header/Header';
-import { RepoInput } from './components/RepoInput/RepoInput';
+import { Container } from "@mui/material"
+import { Stack } from "@mui/material"
 import { QuestionInput } from './components/QuestionInput/QuestionInput';
 import { ResponseDisplay } from './components/ResponseDisplay/ResponseDisplay';
+import { TopBar } from './components/TopBar/TopBar';
+import { Connector } from './components/Connector/Connector';
 import './App.css';
 
 
@@ -60,27 +62,33 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
-      <Header />
-      <main className="app-main">
-        <RepoInput onSubmit={handleRepoSubmit} isRepoLoading={isRepoLoading} />
-        {isRepoConnected && (
-          <>
-            <div className="connected-info">
-              Connected to:{' '}
-              <span className="connected-repo">{repository}</span>
-            </div>
-            <QuestionInput
-              onSubmit={handleQuestionSubmit}
-              isQuestionLoading={isQuestionLoading}
-              disabled={!isRepoConnected}
-            />
-          </>
-        )}
-        {response && (
-          <ResponseDisplay question={question} response={response} />
-        )}
-      </main>
-    </div>
+  <Stack spacing={15} alignItems="center">
+    <TopBar />
+    <Connector />
+  </Stack>
+    
+
+    // <div className="app-container">
+    //   <Header />
+    //   <main className="app-main">
+    //     <RepoInput onSubmit={handleRepoSubmit} isRepoLoading={isRepoLoading} />
+    //     {isRepoConnected && (
+    //       <>
+    //         <div className="connected-info">
+    //           Connected to:{' '}
+    //           <span className="connected-repo">{repository}</span>
+    //         </div>
+    //         <QuestionInput
+    //           onSubmit={handleQuestionSubmit}
+    //           isQuestionLoading={isQuestionLoading}
+    //           disabled={!isRepoConnected}
+    //         />
+    //       </>
+    //     )}
+    //     {response && (
+    //       <ResponseDisplay question={question} response={response} />
+    //     )}
+    //   </main>
+    // </div>
   );
 }
