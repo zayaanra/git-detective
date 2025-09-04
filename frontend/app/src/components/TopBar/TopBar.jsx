@@ -1,10 +1,13 @@
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import {
+    AppBar,
+    Box,
+    Chip,
+    Toolbar,
+    Typography,
+    ThemeProvider,
+} from '@mui/material';
+
 import SmartToyTwoToneIcon from '@mui/icons-material/SmartToyTwoTone';
-import { ThemeProvider  } from '@mui/material';
-import Chip from '@mui/material/Chip';
-import Box from '@mui/material/Box';
 import BoltTwoToneIcon from '@mui/icons-material/BoltTwoTone';
 
 import theme from '../theme';
