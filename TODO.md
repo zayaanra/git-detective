@@ -1,8 +1,7 @@
 ### Todo
 ## Backend
 - [ ] Improve how logging is currently done
-- [X] Download repository and condense into one single XML format
-  - [X] Tags like <directory_structure>, <files> <file path="path"> // file contents here </file> </files>, should be considered
+- [X] Download repository and condense into one single JSON format
 - [ ] Store session data to remember connected GitHub repository for each user
   - [ ] Implement a simple in-memory session storage
     - [ ] Generate session ID on backend when connected to repository
