@@ -1,7 +1,7 @@
 import uvicorn
 import logging
 
-from backend.app.repository.schemas import *
+from repository.schemas import *
 from repository.repository import *
 from repository.file import *
 
