@@ -56,9 +56,12 @@ class Repository:
 
     """
     Converts the information of the repository to a single JSON file format
+
+    Returns:
+        dict: Repository information condensed into a single Python dictionary
     """
-    def convert_to_json(self):
-        repository_info = {"directory_structure": [], "files": []}
+    def convert_to_json(self) -> str:
+        repository_info = {"id": f"{self.owner}/{self.name}", "directory_structure": [], "files": []}
         for file in self.files:
             repository_info["directory_structure"].append(file.path)
             if file.type == "blob":
@@ -71,6 +74,4 @@ class Repository:
 
                     }
                 )
-
-        # with open("repo_json_test.json", "w") as f:
-        #     json.dump(repository_info, f, indent=4)
+        return repository_info

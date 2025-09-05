@@ -2,17 +2,15 @@
 ## Backend
 - [ ] Improve how logging is currently done
 - [X] Download repository and condense into one single JSON format
-- [ ] Store session data to remember connected GitHub repository for each user
-  - [ ] Implement a simple in-memory session storage
-    - [ ] Generate session ID on backend when connected to repository
-    - [ ] Store session ID on frontend upon response from original request
-    - [ ] Verify session ID on backend
-      - [ ] If successful, need to pull out corresponding repository information from object store (S3)
-      - [ ] If failed, return response stating: session expired, reconnect to repository.
-  - [ ] Store repository information in an object-store such as S3
-    - [ ] Upon collecting repository info and storing session ID, data should be sent to S3 for session storage
+- [X] Store session data to remember connected GitHub repository for each user
 
 ## Frontend
 - [ ] Allow user for option to list files that should be ignored when collecting repository information
 - [ ] When user connects to repository, width of components should not suddenly change
 - [ ] Provide output box for JSON summary of entire repository
+- [ ] Finish components for LLM Q/A on repository
+  - [ ] Fix fade in/out bug when QA component flashes before fade animation
+  - [ ] Add disconnect functionality
+  - [ ] Update color scheme of components
+  - [ ] Store chat session as long as user is connected
+  - [ ] Display info/warning stating that chat session/context is not saved anywhere

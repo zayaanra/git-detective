@@ -52,12 +52,20 @@ async def read_root() -> dict:
 def submit_repo(r: Repo):
     repository = Repository(r.owner, r.name)
     status_code = repository.download()
-    repository.convert_to_json()
+    repository_info = repository.convert_to_json()
 
     if status_code == 200:
-        return JSONResponse(content={"message": f"Connected to repository: {repository.name}"}, status_code=status_code)
+        return JSONResponse(content={
+            "message": f"Connected to repository: {repository.name}", 
+            "repository_info": repository_info, 
+            }, 
+            status_code=status_code
+        )
     else:
-        return JSONResponse(content={"message": f"Failed to find repository: {repository.name}. Please try again."}, status_code=status_code)
+        return JSONResponse(content={
+            "message": f"Failed to find repository: {repository.name}. Please try again."}, 
+            status_code=status_code
+        )
     
 @app.post("/ask")
 def ask(q: Question):
