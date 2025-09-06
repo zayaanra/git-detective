@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import localforage from "localforage";
+import { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 
 import {
@@ -14,7 +13,6 @@ import {
     Typography,
 } from '@mui/material';
 
-import CancelIcon from '@mui/icons-material/Cancel';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TextField from '@mui/material/TextField';
 
@@ -38,21 +36,11 @@ export function Connector({ onConnectionChange }) {
     const validateRepositoryURL = (repoID) => {
         if(!repoID.trim()) {
             setAlert({ type: 'error', message: 'Repository cannot be empty. Please enter <username>/<repository>.' })
-            // setAlert( values => {
-            //     return {
-            //         ...values, type: 'error', message: 'Repository cannot be empty. Please enter <username>/<repository>.'
-            //     }
-            // })
             return false;
         }
         
         if (!REGEX_PATTERN.test(repoID)) {
             setAlert({ type: 'error', message: 'Please enter a valid GitHub username and repository in the following format: <username>/<repository>' })
-            // setAlert( values => {
-            //     return {
-            //         ...values, type: 'error', message: 'Please enter a valid GitHub username and repository in the following format: <username>/<repository>'
-            //     }
-            // })
             return false;
         }
         
@@ -60,20 +48,12 @@ export function Connector({ onConnectionChange }) {
     }
 
     useEffect(() => {
-        localforage.getItem("repository_info").then((data) => {
-            if (data) {
-                setIsConnected(true);
-                updateConnectionStatus(true);
-                setRepoID(data.id);
-                setAlert({ type: 'success', message: `Connected to '${data.id}' successfully!` })
-                // setAlert( values => {
-                //     return {
-                //         ...values, type: 'success', message: `Connected to '${data.id}' successfully!`
-                //     }
-                // });
-            }
-        })
-    }, [])
+        if (Cookies.get('sessionID')) {
+            setIsConnected(true);
+            updateConnectionStatus(true);
+            // TODO: Make request to restore session data to backend
+        }
+    }, []);
 
     const handleRepoSubmit = async (e) => {
         e.preventDefault();
@@ -86,7 +66,7 @@ export function Connector({ onConnectionChange }) {
 
         let [owner, name] = repoID.split("/");
 
-        const response = await fetch("http://localhost:8000/submit", {
+        const response = await fetch("http://localhost:8000/connect", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -96,31 +76,19 @@ export function Connector({ onConnectionChange }) {
                 owner: owner,
                 name: name,
             }),
+            credentials: "include"
         });
 
         response.json().then((data) => {
             setIsLoading(false);
-
             if (response.status === 200) {
-                localforage.setItem("repository_info", data.repository_info);
                 setIsConnected(true);
-                updateConnectionStatus(true);
                 setAlert({ type: 'success', message: `Connected to '${repoID}' successfully!` })
-                // setAlert( values => {
-                //     return {
-                //         ...values, type: 'success', message: `Connected to '${repoID}' successfully!`
-                //     }
-                // });
-
+                updateConnectionStatus(true);
             } else if (response.status === 404) {
                 setIsConnected(false);
-                updateConnectionStatus(false);
                 setAlert({ type: 'error', message: `GitHub Repository '${repoID}' not found. Please try again.` });
-                // setAlert( values => {
-                //     return {
-                //         ...values, type: 'error', message: `GitHub Repository '${repoID}' not found. Please try again.`
-                //     }
-                // })
+                updateConnectionStatus(false);
             }
         });
 

@@ -1,18 +1,19 @@
+import { useState } from 'react';
 import Cookies from "js-cookie";
 
-import React, { useState } from 'react';
-import { Container } from "@mui/material";
-import { Box, Stack } from "@mui/material";
-import { Fade } from "@mui/material";
-import { QuestionInput } from './components/QuestionInput/QuestionInput';
-import { ResponseDisplay } from './components/ResponseDisplay/ResponseDisplay';
+import { 
+  Box, 
+  Container, 
+  Connector, 
+  Fade, 
+  Stack 
+} from "@mui/material";
+
 import { TopBar } from './components/TopBar/TopBar';
 import { Connector } from './components/Connector/Connector';
 import { QA } from './components/QA/QA';
+
 import './App.css';
-import localforage from "localforage";
-
-
 
 export default function App() {
   const [question, setQuestion] = useState('');
@@ -20,10 +21,21 @@ export default function App() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
 
   const [isConnected, setIsConnected] = useState(false);
+
+  const disconnectFromRepository = async () => {
+    await fetch('http://localhost:8000/disconnect', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": Cookies.get("csrftoken") || "",
+      },
+      credentials: "include",
+    });
+  }
   
   const handleConnectionChange = (connected) => {
     if (!connected) {
-      localforage.removeItem('repository_info');
+      disconnectFromRepository();
     }
     setIsConnected(connected);
   }

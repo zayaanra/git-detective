@@ -1,22 +1,50 @@
-import React, { useState } from "react";
-import { Divider, Box, Stack, Tooltip, IconButton, TextField, Typography, InputAdornment, Paper, List, ListItem, ThemeProvider } from "@mui/material";
+import { useState } from "react";
+import Cookies from "js-cookie";
+
+import { 
+    Box, 
+    Divider, 
+    IconButton, 
+    InputAdornment, 
+    List, 
+    ListItem, 
+    Paper, 
+    Stack, 
+    TextField, 
+    ThemeProvider, 
+    Tooltip, 
+    Typography 
+} from "@mui/material";
+
 import SendIcon from '@mui/icons-material/Send';
 import CancelIcon from '@mui/icons-material/Cancel'
-import { TypeAnimation } from 'react-type-animation';
 
 import theme from '../theme';
 
 export function QA({ onConnectionChange }) {
     const [items, setItems] = useState([]);
+    const [question, setQuestion] = useState('');
     
-    const handleSend = () => {
-        if (!items.length || items[items.length - 1] !== "New Answer") {
-            setItems([...items, `Answer ${items.length + 1}`]);
-        }
-    };
+    const handleQuery = async (e) => {
+        // if (!items.length || items[items.length - 1] !== "New Answer") {
+        //     setItems([...items, `Answer ${items.length + 1}`]);
+        // }
 
-    const updateConnectionStatus = (connected) => {
-        onConnectionChange(connected);
+        const response = await fetch("http://localhost:8000/query", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": Cookies.get("csrftoken") || "",
+            },
+            credentials: "include",
+            body: JSON.stringify({ 
+                text: question,
+            }),
+        });
+
+        response.json().then((data) => {
+            console.log(data);
+        })
     };
     
     return (
@@ -42,19 +70,19 @@ export function QA({ onConnectionChange }) {
                 <Divider sx={{ width: "100%", my: 1 }} />
             </Box>
 
-            <TextField placeholder="Ask a question..." multiline maxRows={Infinity}
+            <TextField value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask a question..." multiline maxRows={Infinity}
                 sx={{ width: 500 }}
                 slotProps={{
                     input: {
                     endAdornment: (
                         <InputAdornment position="end">
                             <Tooltip title="Send">
-                                <IconButton onClick={handleSend} sx={{ color: "primary.light" }}>
+                                <IconButton onClick={(e) => handleQuery(e)} sx={{ color: "primary.light" }}>
                                     <SendIcon />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="Disconnect from repository">
-                                <IconButton onClick={() => updateConnectionStatus(false)} sx={{ color: "red"}}>
+                                <IconButton onClick={() => onConnectionChange(false)} sx={{ color: "red"}}>
                                     <CancelIcon />
                                 </IconButton>
                             </Tooltip>
