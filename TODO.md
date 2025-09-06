@@ -10,7 +10,7 @@
 - [ ] Provide output box for JSON summary of entire repository
 - [ ] Finish components for LLM Q/A on repository
   - [ ] Fix fade in/out bug when QA component flashes before fade animation
-  - [ ] Add disconnect functionality
+  - [X] Add disconnect functionality
   - [ ] Update color scheme of components
   - [ ] Store chat session as long as user is connected
   - [ ] Display info/warning stating that chat session/context is not saved anywhere
