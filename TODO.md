@@ -1,4 +1,4 @@
-### Todo
+### To-Do
 ## Backend
 - [ ] Improve how logging is currently done
 - [X] Download repository and condense into one single JSON format
@@ -14,3 +14,13 @@
   - [ ] Update color scheme of components
   - [ ] Store chat session as long as user is connected
   - [ ] Display info/warning stating that chat session/context is not saved anywhere
+  - [ ] Merge Q/A component with Connector component
+- [ ] Connector component should be updated to have:
+  - [ ] Q/A
+  - [ ] Include/Exclude entries to include/exclude files or directories given a pattern
+  - [ ] Initial connection should display basic repository info: (name, owner, authors/contributors, total # of files, etc...)
+  - [ ] Ability to download JSON output of repository
+
+## Bugs
+- [ ] Regex for validating repository url (<username>/<repository>) breaks when repository name has non-alphanumeric characters
+- [ ] Querying repository through GitHub API does not work if `main` branch is named `master` instead

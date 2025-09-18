@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 import { 
   Box, 
   Container, 
-  Connector, 
   Fade, 
   Stack 
 } from "@mui/material";
