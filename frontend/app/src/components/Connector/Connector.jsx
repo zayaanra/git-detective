@@ -15,6 +15,7 @@ import {
 
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TextField from '@mui/material/TextField';
+import CancelIcon from '@mui/icons-material/Cancel'
 
 import theme from '../theme';
 
@@ -108,10 +109,10 @@ export function Connector({ onConnectionChange }) {
                 <Stack mx={10} my={5} spacing={2} textAlign="center">      
                     <Typography variant="h3"
                             sx={{
-                            mb: 3,
-                            fontFamily: 'Inter',
-                            fontWeight: 700,
-                            color: 'primary.dark',
+                                mb: 3,
+                                fontFamily: 'Inter',
+                                fontWeight: 700,
+                                color: 'primary.dark',
                             }}
                     >
                         Connect to a GitHub Repository
@@ -124,11 +125,27 @@ export function Connector({ onConnectionChange }) {
                     variant="outlined"
                     slotProps={{
                         input: {
-                        startAdornment: (
-                            <InputAdornment position="start">
-                            <GitHubIcon />
-                            </InputAdornment>
-                        ),
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <GitHubIcon />
+                                </InputAdornment>
+                            ),
+                            endAdornment: isConnected && (  // <-- only show when connected
+                                <InputAdornment position="end">
+                                    <Tooltip title="Disconnect from repository">
+                                        <IconButton
+                                            onClick={() => {
+                                                setIsConnected(false);
+                                                onConnectionChange(false);
+                                                setAlert({ type: 'info', message: 'Disconnected from repository.' });
+                                            }}
+                                            sx={{ color: "red" }}
+                                        >
+                                            <CancelIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </InputAdornment>
+                            ),
                         },
                     }}
                     />
@@ -139,6 +156,9 @@ export function Connector({ onConnectionChange }) {
 
                     <Button onClick={(e) => handleRepoSubmit(e)} loading={isLoading} sx={{ bgcolor: "primary.light"}} variant="contained" disableElevation>Connect to Repository</Button>
                 </Stack>
+
+                
+                
             </Paper>
         </ThemeProvider>
     )

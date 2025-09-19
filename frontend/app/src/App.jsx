@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 import { 
   Box, 
   Container, 
-  Fade, 
   Stack 
 } from "@mui/material";
 
@@ -15,10 +14,6 @@ import { QA } from './components/QA/QA';
 import './App.css';
 
 export default function App() {
-  const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState('');
-  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
-
   const [isConnected, setIsConnected] = useState(false);
 
   const disconnectFromRepository = async () => {
@@ -40,23 +35,19 @@ export default function App() {
   }
 
   return (
-    <Stack spacing={15} alignItems="center">
+    <Stack spacing={10} alignItems="center">
       <TopBar />
 
-      <Box>
-        <Fade in={!isConnected} timeout={500} unmountOnExit mountOnEnter>
-          <Box>
-            <Connector onConnectionChange={handleConnectionChange} />
-          </Box>
-        </Fade>
+      {/* Side-by-side layout */}
+      <Stack direction="row" spacing={6} alignItems="flex-start">
+        <Box>
+          <Connector onConnectionChange={handleConnectionChange} />
+        </Box>
 
-        <Fade in={isConnected} timeout={500} unmountOnExit mountOnEnter>
-          <Box>
-            <QA onConnectionChange={handleConnectionChange}/>
-          </Box>
-        </Fade>
-      </Box>
-
+        <Box sx={{ flex: 1 }}>
+          <QA isConnected={isConnected} />
+        </Box>
+      </Stack>
     </Stack>
   );
 }
