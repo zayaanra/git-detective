@@ -9,14 +9,15 @@
 - [ ] When user connects to repository, width of components should not suddenly change
 - [ ] Provide output box for JSON summary of entire repository
 - [ ] Finish components for LLM Q/A on repository
-  - [ ] Fix fade in/out bug when QA component flashes before fade animation
+  - [X] Fix fade in/out bug when QA component flashes before fade animation
   - [X] Add disconnect functionality
   - [ ] Update color scheme of components
   - [ ] Store chat session as long as user is connected
   - [ ] Display info/warning stating that chat session/context is not saved anywhere
-  - [ ] Merge Q/A component with Connector component
+  - [X] Merge Q/A component with Connector component
 - [ ] Connector component should be updated to have:
-  - [ ] Q/A
+  - [X] Q/A
+    - [ ] Complete Q/A component
   - [ ] Include/Exclude entries to include/exclude files or directories given a pattern
   - [ ] Initial connection should display basic repository info: (name, owner, authors/contributors, total # of files, etc...)
   - [ ] Ability to download JSON output of repository
