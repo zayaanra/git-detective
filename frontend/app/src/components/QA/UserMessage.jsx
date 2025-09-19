@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
     Avatar,
     ThemeProvider,
@@ -9,7 +7,6 @@ import {
 } from "@mui/material";
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
 import theme from '../theme';
 
 export function UserMessage({ query }) {
@@ -24,21 +21,15 @@ export function UserMessage({ query }) {
                         px: 2,
                         py: 1,
                         maxWidth: "60%",
-                        wordBreak: "break-word",
+                        wordBreak: "break-word"
                     }}
                 >
-                    <Typography 
-                        color="white" 
-                        variant="body1" 
-                        sx={{ fontSize: "1rem" }}
-                    >
-                        {query}
-                    </Typography>
+                    <Typography color="white" variant="body1">{query}</Typography>
                 </Paper>
                 <Avatar>
                     <AccountCircleIcon />
                 </Avatar>
             </Stack>
         </ThemeProvider>
-    )
+    );
 }

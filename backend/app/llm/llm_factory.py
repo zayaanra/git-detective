@@ -16,8 +16,8 @@ class GenAI():
         response = self.client.models.generate_content(
             model=self.model,
             contents=[
+                {"role": "user", "parts": [{"text": question}]},
                 {"role": "user", "parts": [{"text": context}]},
-                {"role": "user", "parts": [{"text": question}]}
             ]
         )
 

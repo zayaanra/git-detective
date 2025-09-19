@@ -1,11 +1,8 @@
 import { useState } from 'react';
-
 import { 
-    Box, 
     Typography, 
     TextField,
     ThemeProvider, 
-    Button,
     InputAdornment,
     Stack,
     Paper,
@@ -16,14 +13,13 @@ import {
 } from "@mui/material";
 
 import SendIcon from '@mui/icons-material/Send';
-
 import theme from '../theme';
 
 import { UserMessage } from './UserMessage';
+import { BotMessage } from './BotMessage';
 
 export function QA({ isConnected }) {
     const [question, setQuestion] = useState('');
-    const [response, setResponse] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const [history, setHistory] = useState([]);
@@ -31,22 +27,28 @@ export function QA({ isConnected }) {
     const askQuestion = async () => {
         if (!question.trim()) return;
 
+        // add user message immediately
+        setHistory((prev) => [...prev, { role: "user", text: question }]);
+        const currentQuestion = question;
+        setQuestion("");
+
         setIsLoading(true);
         try {
-            const res = await fetch("http://localhost:8000/ask", {
+            console.log(currentQuestion);
+            const res = await fetch("http://localhost:8000/query", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ question }),
+                body: JSON.stringify({ text: currentQuestion }),
             });
 
             const data = await res.json();
-            setResponse(data.answer || "No response.");
+            const answer = data.answer || "No response.";
 
-            setHistory((prev) => [...prev, question]);
-            setQuestion("");
+            // add bot message
+            setHistory((prev) => [...prev, { role: "bot", text: answer }]);
         } catch (err) {
-            setResponse("Error: " + err.message);
+            setHistory((prev) => [...prev, { role: "bot", text: "Error: " + err.message }]);
         }
         setIsLoading(false);
     };
@@ -55,25 +57,19 @@ export function QA({ isConnected }) {
         <ThemeProvider theme={theme}>
             <Paper elevation={3} sx={{ 
                 textAlign: "center",
-                justifyContent: "center",
-                alignItems: "center",
                 width: 712,
                 height: 710,
                 border: 2,
                 borderRadius: 5,
                 borderColor: "white"
             }}>
-                <Stack my={5} spacing={3} sx={{
-                    justifyContent: "center",
-                    alignItems: "center"
-                }}>
-                    <Typography variant="h4" 
-                        sx={{
-                            mb: 3,
-                            fontFamily: 'Inter',
-                            fontWeight: 700,
-                            color: 'primary.dark',
-                        }}>
+                <Stack my={5} spacing={3} sx={{ alignItems: "center" }}>
+                    <Typography variant="h4" sx={{
+                        mb: 3,
+                        fontFamily: 'Inter',
+                        fontWeight: 700,
+                        color: 'primary.dark',
+                    }}>
                         Ask a Question
                     </Typography>
 
@@ -82,13 +78,15 @@ export function QA({ isConnected }) {
                             width: 690,
                             height: 500,
                             overflowY: "auto",
-                            borderColor: "black"
+                            p: 2
                         }}
                     >
                         <List>
-                            {history.map((value, index) => (
-                                <ListItem key={index}>
-                                    <UserMessage query={value} />
+                            {history.map((msg, index) => (
+                                <ListItem key={index} sx={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+                                    {msg.role === "user" 
+                                        ? <UserMessage query={msg.text} /> 
+                                        : <BotMessage answer={msg.text} />}
                                 </ListItem>
                             ))}
                         </List>
